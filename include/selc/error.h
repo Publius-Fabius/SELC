@@ -1,11 +1,10 @@
-
 #ifndef SELC_ERROR_H
 #define SELC_ERROR_H
 
 /** Simple Error Type */
 typedef int sel_err_t;
 
-/** Basic Errors */
+/** Built-In Errors */
 enum sel_err_type {
         SEL_ERR_OK      = 0,            /** All Ok */
         SEL_ERR_SYS     = -1            /** System Error (errno) */
@@ -14,7 +13,7 @@ enum sel_err_type {
 /** Error Registry */
 struct sel_reg {
         sel_err_t code;                 /** Error Code */
-        const char *name;               /** Error Name */
+        const char *pair[2];            /** Name, Description Pair */
         struct sel_reg *next;           /** Next Error */
 };
 
@@ -27,26 +26,28 @@ void sel_init();
  * Bind a string to an error code.
  * @param registry Registry node.
  * @param error Error code.
- * @param name Name value.
+ * @param name The error's name.
+ * @param desc The error's description.
  */
 void sel_bind(
         struct sel_reg *registry, 
         const sel_err_t error, 
-        const char *name);
+        const char *name,
+        const char *desc);
 
 /**
  * Lookup an error.
  */
-const char *sel_lookup(const sel_err_t error);
+const char **sel_lookup(const sel_err_t error);
 
 /**
  * Bind a string to an error code
  * @param error Error code.
- * @param name Name value.
+ * @param desc The error code's description.
  */
-#define SEL_BIND(ERROR, STRING) { \
+#define SEL_BIND(ERROR, NAME, DESC) { \
         static struct sel_reg NODE; \
-        sel_bind(&NODE, ERROR, STRING); \
+        sel_bind(&NODE, ERROR, NAME, DESC); \
 }
 
 /**
