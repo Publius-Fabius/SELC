@@ -25,8 +25,8 @@ void sel_bind(
 
 void sel_init()
 {
-        SEL_BIND(SEL_ERR_OK, "SEL_ERR_OK", "All OK");
-        SEL_BIND(SEL_ERR_SYS, "SEL_ERR_SYS", "System Error");
+        SEL_BIND(SEL_ERR_OK, "All OK");
+        SEL_BIND(SEL_ERR_SYS, "System Error");
 }
 
 const char **sel_lookup(const sel_err_t code)

@@ -45,9 +45,9 @@ const char **sel_lookup(const sel_err_t error);
  * @param error Error code.
  * @param desc The error code's description.
  */
-#define SEL_BIND(ERROR, NAME, DESC) { \
+#define SEL_BIND(ERROR, DESC) { \
         static struct sel_reg NODE; \
-        sel_bind(&NODE, ERROR, NAME, DESC); \
+        sel_bind(&NODE, ERROR, #ERROR, DESC); \
 }
 
 /**

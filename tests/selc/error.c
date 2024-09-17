@@ -32,8 +32,8 @@ int main(int argc, char **argv)
         
         sel_init();
 
-        SEL_BIND(ERROR_A, "ERROR_A", "Error A");
-        SEL_BIND(ERROR_B, "ERROR_B", "Error B");
+        SEL_BIND(ERROR_A, "Error A");
+        SEL_BIND(ERROR_B, "Error B");
 
         test_builtins();
         test_addons();
