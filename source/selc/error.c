@@ -12,13 +12,11 @@ static struct sel_reg **sel_reg_st()
 void sel_bind(
         struct sel_reg *node, 
         const sel_err_t code, 
-        const char *name,
-        const char *desc)
+        const char *string)
 {
         struct sel_reg **reg = sel_reg_st();
         node->code = code;
-        node->pair[0] = name;
-        node->pair[1] = desc;
+        node->string = string;
         node->next = *reg;
         *reg = node;
 }
@@ -29,11 +27,11 @@ void sel_init()
         SEL_BIND(SEL_ERR_SYS, "System Error");
 }
 
-const char **sel_lookup(const sel_err_t code)
+const char *sel_strerror(const sel_err_t code)
 {
         for(struct sel_reg *reg = *sel_reg_st(); reg; reg = reg->next) {
                 if(reg->code == code) {
-                        return reg->pair;
+                        return reg->string;
                 }
         }
         return NULL;
@@ -45,7 +43,7 @@ sel_err_t sel_abort(
         const int line)
 {
         fprintf(stderr, 
-                "\n%s: %s(..) line %i: ABORT \n",
+                "%s: %s(..) line %i: ABORT\r\n",
                 file,
                 func,
                 line);
@@ -58,21 +56,15 @@ sel_err_t sel_report(
         const char *func,
         const int line)
 {
-        const char *name = "Unknown";
-        const char *desc = "Error";
-        const char **pair = sel_lookup(error);
-        if(pair) {
-                name = pair[0];
-                desc = pair[1];
-        }
+        const char *str = sel_strerror(error);
+        str = str ? str : "UNKNOWN";
         fprintf(stderr, 
-                "\n%s: %s(..) line %i: REPORT: error %i %s %s \n", 
+                "%s: %s(..) line %i: error (%i) %s\r\n", 
                 file,
                 func,
                 line,
                 error,
-                name,
-                desc);
+                str);
         return error;
 }
 
