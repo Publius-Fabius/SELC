@@ -38,12 +38,13 @@ const char *sel_strerror(const sel_err_t code)
 }
 
 sel_err_t sel_abort(
+        FILE *stream,
         const char *file,
         const char *func,
         const int line)
 {
-        fprintf(stderr, 
-                "%s: %s(..) line %i: ABORT\r\n",
+        fprintf(stream, 
+                "abort:%s:%s:%i\r\n",
                 file,
                 func,
                 line);
@@ -51,30 +52,33 @@ sel_err_t sel_abort(
 }
 
 sel_err_t sel_report(
+        FILE *stream,
         const sel_err_t error,
         const char *file,
         const char *func,
         const int line)
 {
         const char *str = sel_strerror(error);
-        str = str ? str : "UNKNOWN";
-        fprintf(stderr, 
-                "%s: %s(..) line %i: error (%i) %s\r\n", 
+        str = str ? str : "unknown";
+        fprintf(stream, 
+                "error:%i:%s:%s:%i:%s\r\n",
+                error,
                 file,
                 func,
                 line,
-                error,
                 str);
         return error;
 }
 
 void sel_info(
+        FILE *stream,
         const char *file,
         const char *func,
         const int line)
 {
-        printf( "%s: %s(..) line %i \n", 
-                file, 
+        fprintf(stream,
+                "info:%s:%s:%i\r\n",
+                file,
                 func,
                 line);
 }

@@ -1,6 +1,8 @@
 #ifndef SELC_ERROR_H
 #define SELC_ERROR_H
 
+#include <stdio.h>
+
 /** Simple Error Type */
 typedef int sel_err_t;
 
@@ -58,6 +60,7 @@ const char *sel_strerror(const sel_err_t error);
  * @return does not return
  */
 sel_err_t sel_abort(
+        FILE *stream,
         const char *file,
         const char *func,
         const int line);
@@ -65,7 +68,7 @@ sel_err_t sel_abort(
 /**
  * Abort the process, printing out some error information.
  */
-#define SEL_ABORT() sel_abort(__FILE__, __func__, __LINE__)
+#define SEL_ABORT() sel_abort(stderr, __FILE__, __func__, __LINE__)
 
 /**
  * If the expression evaluates to false, abort the process.  This macro
@@ -75,20 +78,20 @@ sel_err_t sel_abort(
 #ifndef __OPTIMIZE__
 #define SEL_ASSERT(EXPR) \
         if(!(EXPR)) { \
-                sel_abort(__FILE__, __func__, __LINE__); \
+                sel_abort(stderr, __FILE__, __func__, __LINE__); \
         }
 #else
 #define SEL_ASSERT(EXPR) 
 #endif
 
 /**
- * Does the same thing as SELASSERT, but the macro definition is 
+ * Does the same thing as SEL_ASSERT, but the macro definition is 
  * not affected by the __OPTIMIZE__ flag.
  * @param EXPR The expression
  */
 #define SEL_TEST(EXPR) \
         if(!(EXPR)) { \
-                sel_abort(__FILE__, __func__, __LINE__); \
+                sel_abort(stderr, __FILE__, __func__, __LINE__); \
         }
 
 /**
@@ -99,27 +102,52 @@ sel_err_t sel_abort(
  * @return error
  */
 sel_err_t sel_report(
+        FILE *stream,
         const sel_err_t error,
         const char *file,
         const char *func,
         const int line);
 
+/** 
+ * Report an error.
+ */
+#define SEL_FREPORT(STREAM, ERROR)      \
+        sel_report(                     \
+                STREAM,                 \
+                ERROR,                  \
+                __FILE__,               \
+                __func__,               \
+                __LINE__)
+
+/** 
+ * Report an error.
+ */
+#define SEL_REPORT(ERROR) SEL_FREPORT(stderr, ERROR)
+
 /**
  * Report and return an error.
  */
-#define SEL_THROW(ERROR) \
-        return sel_report(ERROR, __FILE__, __func__, __LINE__); 
+#define SEL_FTHROW(STREAM, ERROR) return SEL_FREPORT(STREAM, ERROR)
+
+/**
+ * Report and return an error.
+ */
+#define SEL_THROW(ERROR) SEL_FTHROW(stderr, ERROR);
 
 /**
  * If the expression evaluates to an error throw it. 
- * @param EXPR An expression that may produce an error.
  */
-#define SEL_TRY(EXPR) {\
-        const sel_err_t SEL_TRY_ERR = EXPR;\
-        if((SEL_TRY_ERR) != SEL_ERR_OK) {\
-                return sel_report(SEL_TRY_ERR, __FILE__, __func__, __LINE__);\
-        }\
+#define SEL_FTRY(STREAM, EXPR) {                        \
+        const sel_err_t SEL_TRY_ERR = EXPR;             \
+        if(SEL_TRY_ERR != SEL_ERR_OK) {                 \
+                SEL_FTHROW(STREAM, SEL_TRY_ERR);        \
+        }                                               \
 }
+
+/**
+ * If the expression evaluates to an error throw it. 
+ */
+#define SEL_TRY(EXPR) SEL_FTRY(stderr, EXPR)
 
 /**
  * If the expression evaluates to an error return it. 
@@ -132,25 +160,38 @@ sel_err_t sel_report(
         } \
 }
 
-#define SEL_IO(EXPR) { \
-        const int SEL_IO_ERR = EXPR; \
-        if(SEL_IO_ERR < 0) { \
-                return sel_report(SEL_ERR_SYS, __FILE__, __func__, __LINE__); \
-        } \
+/**
+ * If the expression evaluates to less than 0, throw an IO error.
+ */
+#define SEL_FIO(STREAM, EXPR) {                         \
+        const int SEL_IO_ERR = EXPR;                    \
+        if(SEL_IO_ERR < 0) {                            \
+                SEL_FTHROW(STREAM, SEL_IO_ERR)  \
+        }                                               \
 }
 
-#define SEL_IO_QUIETLY(EXPR) { \
-        const int SEL_IO_ERR = EXPR; \
-        if(SEL_IO_ERR < 0) { \
-                return SEL_ERR_SYS; \
-        } \
+/**
+ * If the expression evaluates to less than 0, return an IO error.
+ */
+#define SEL_IO_QUIETLY(EXPR) {                          \
+        const int SEL_IO_ERR = EXPR;                    \
+        if(SEL_IO_ERR < 0) {                            \
+                return SEL_ERR_SYS;                     \
+        }                                               \
 }
 
+/**
+ * Print out info.
+ */
 void sel_info(
+        FILE *stream,
         const char *file,
         const char *func,
         const int line);
 
-#define SEL_INFO() sel_info(__FILE__, __func__, __LINE__)
+/**
+ * Report info about the current line of code.
+ */
+#define SEL_INFO() sel_info(stdout, __FILE__, __func__, __LINE__)
 
 #endif
