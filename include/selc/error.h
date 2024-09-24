@@ -166,9 +166,14 @@ sel_err_t sel_report(
 #define SEL_FIO(STREAM, EXPR) {                         \
         const int SEL_IO_ERR = EXPR;                    \
         if(SEL_IO_ERR < 0) {                            \
-                SEL_FTHROW(STREAM, SEL_IO_ERR)  \
+                SEL_FTHROW(STREAM, SEL_IO_ERR)          \
         }                                               \
 }
+
+/**
+ * If the expression evaluates to less than 0, throw an IO error.
+ */
+#define SEL_IO(EXPR) SEL_FIO(stderr, EXPR)
 
 /**
  * If the expression evaluates to less than 0, return an IO error.
