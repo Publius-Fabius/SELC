@@ -59,7 +59,7 @@ const char *sel_strerror(const sel_err_t error);
  * @param line The line number where the process was aborted.
  * @return does not return
  */
-sel_err_t sel_abort(
+sel_err_t sel_halt(
         FILE *stream,
         const char *file,
         const char *func,
@@ -68,7 +68,7 @@ sel_err_t sel_abort(
 /**
  * Abort the process, printing out some error information.
  */
-#define SEL_ABORT() sel_abort(stderr, __FILE__, __func__, __LINE__)
+#define SEL_HALT() sel_halt(stderr, __FILE__, __func__, __LINE__)
 
 /**
  * If the expression evaluates to false, abort the process.  This macro
@@ -78,7 +78,7 @@ sel_err_t sel_abort(
 #ifndef __OPTIMIZE__
 #define SEL_ASSERT(EXPR) \
         if(!(EXPR)) { \
-                sel_abort(stderr, __FILE__, __func__, __LINE__); \
+                sel_halt(stderr, __FILE__, __func__, __LINE__); \
         }
 #else
 #define SEL_ASSERT(EXPR) 
@@ -91,7 +91,7 @@ sel_err_t sel_abort(
  */
 #define SEL_TEST(EXPR) \
         if(!(EXPR)) { \
-                sel_abort(stderr, __FILE__, __func__, __LINE__); \
+                sel_halt(stderr, __FILE__, __func__, __LINE__); \
         }
 
 /**
